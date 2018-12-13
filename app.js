@@ -9,7 +9,7 @@ var express     = require("express"),
     User        = require("./models/user"),
     seedDB      = require("./seeds")
     
-mongoose.connect("mongodb://localhost/yelp_camp_v4",{ useNewUrlParser: true });
+mongoose.connect("mongodb://shivam:shivam3898@ds011705.mlab.com:11705/shivam");
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 seedDB();
