@@ -30,7 +30,7 @@ app.get("/", function(req, res){
 });
 
 //INDEX - show all campgrounds
-app.get("/campgrounds", function(req, res){
+app.get("/campgrounds",isLoggedIn, function(req, res){
     // Get all campgrounds from DB
     Campground.find({}, function(err, allCampgrounds){
        if(err){
@@ -60,12 +60,12 @@ app.post("/campgrounds", function(req, res){
 });
 
 //NEW - show form to create new campground
-app.get("/campgrounds/new", function(req, res){
+app.get("/campgrounds/new",isLoggedIn, function(req, res){
    res.render("campgrounds/new"); 
 });
 
 // SHOW - shows more info about one campground
-app.get("/campgrounds/:id", function(req, res){
+app.get("/campgrounds/:id",isLoggedIn, function(req, res){
     //find the campground with provided ID
     Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
         if(err){
