@@ -4,20 +4,20 @@ var express     = require("express"),
     mongoose    = require("mongoose"),
     passport    = require("passport"),
     LocalStrategy=require("passport-local"),
-    Campground  = require("./models/campground"),
+    feeds  = require("./models/feeds"),
     Comment     = require("./models/comment"),
-    User        = require("./models/user"),
-    seedDB      = require("./seeds")
+    User        = require("./models/user");
+    // seedDB      = require("./seeds");
     
-mongoose.connect("mongodb://shivam:shivam3898@ds011705.mlab.com:11705/shivam");
+mongoose.connect("mongodb://shivam:shivam3898@ds011705.mlab.com:11705/shivam",{ useNewUrlParser: true });
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
-seedDB();
+// seedDB();
 
 app.use(require("express-session")({
-	secret:"shivam3898",
+	secret:"shivam389",
 	resave:false,
-	saveUninitialised:false
+	saveUninitialized:false
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -29,51 +29,54 @@ app.get("/", function(req, res){
     res.render("landing");
 });
 
-//INDEX - show all campgrounds
-app.get("/campgrounds",isLoggedIn, function(req, res){
-    // Get all campgrounds from DB
-    Campground.find({}, function(err, allCampgrounds){
+//INDEX - show all feeds
+app.get("/feeds",isLoggedIn, function(req, res){
+    // Get all feeds from DB
+    feeds.find({}, function(err, allfeeds){
        if(err){
            console.log(err);
        } else {
-          res.render("campgrounds/index",{campgrounds:allCampgrounds});
+          res.render("feeds/index",{feeds:allfeeds});
        }
     });
 });
 
-//CREATE - add new campground to DB
-app.post("/campgrounds", function(req, res){
-    // get data from form and add to campgrounds array
+//CREATE - add new feeds to DB
+app.post("/feeds", function(req, res){
+    // get data from form and add to feeds array
     var name = req.body.name;
     var image = req.body.image;
     var desc = req.body.description;
-    var newCampground = {name: name, image: image, description: desc}
-    // Create a new campground and save to DB
-    Campground.create(newCampground, function(err, newlyCreated){
+    var newfeeds = {name: name, image: image, description: desc}
+    // Create a new feeds and save to DB
+    feeds.create(newfeeds, function(err, newlyCreated){
         if(err){
             console.log(err);
         } else {
-            //redirect back to campgrounds page
-            res.redirect("/campgrounds");
+            //redirect back to feeds page
+            res.redirect("/feeds");
         }
     });
 });
 
-//NEW - show form to create new campground
-app.get("/campgrounds/new",isLoggedIn, function(req, res){
-   res.render("campgrounds/new"); 
+//NEW - show form to create new feeds
+app.get("/feeds/new",isLoggedIn, function(req, res){
+   res.render("feeds/new"); 
 });
 
-// SHOW - shows more info about one campground
-app.get("/campgrounds/:id",isLoggedIn, function(req, res){
-    //find the campground with provided ID
-    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
+// SHOW - shows more info about one feeds
+app.get("/feeds/:id",isLoggedIn, function(req, res){
+    //find the feeds with provided ID
+    feeds.findById(req.params.id).populate("comments").exec(function(err, foundfeeds){
         if(err){
             console.log(err);
         } else {
-            console.log(foundCampground)
-            //render show template with that campground
-            res.render("campgrounds/show", {campground: foundCampground});
+            foundfeeds.author.id = req.user._id;
+               foundfeeds.author.username = req.user.username;
+               //save comment
+               foundfeeds.save();
+            //render show template with that feeds
+            res.render("feeds/show", {feeds: foundfeeds});
         }
     });
 });
@@ -83,40 +86,56 @@ app.get("/campgrounds/:id",isLoggedIn, function(req, res){
 // COMMENTS ROUTES
 // ====================
 
-app.get("/campgrounds/:id/comments/new",isLoggedIn,function(req, res){
-    // find campground by id
-    Campground.findById(req.params.id, function(err, campground){
+app.get("/feeds/:id/comments/new",isLoggedIn,function(req, res){
+    // find feeds by id
+    feeds.findById(req.params.id, function(err, feeds){
         if(err){
             console.log(err);
         } else {
-             res.render("comments/new", {campground: campground});
+             res.render("comments/new", {feeds: feeds});
         }
     })
 });
 
-app.post("/campgrounds/:id/comments", function(req, res){
-   //lookup campground using ID
-   Campground.findById(req.params.id, function(err, campground){
+app.post("/feeds/:id/comments", function(req, res){
+   //lookup feeds using ID
+   feeds.findById(req.params.id, function(err, feeds){
        if(err){
            console.log(err);
-           res.redirect("/campgrounds");
+           res.redirect("/feeds");
        } else {
         Comment.create(req.body.comment, function(err, comment){
            if(err){
                console.log(err);
            } else {
-               campground.comments.push(comment);
-               campground.save();
-               res.redirect('/campgrounds/' + campground._id);
+               
+               comment.author.id = req.user._id;
+               comment.author.username = req.user.username;
+               //save comment
+               comment.save();
+               feeds.comments.push(comment);
+               feeds.save();
+               res.redirect('/feeds/' + feeds._id);
            }
         });
        }
    });
    //create new comment
-   //connect new comment to campground
-   //redirect campground show page
+   //connect new comment to feeds
+   //redirect feeds show page
 });
 
+
+//delete karo
+app.post("/feeds/:id", function(req, res){
+   feeds.findByIdAndRemove(req.params.id, function(err){
+      if(err){
+          res.redirect("/feeds");
+      } else {
+          res.redirect("/feeds");
+      }
+   });
+});
 
 
 
@@ -140,7 +159,7 @@ app.post("/register",function(req,res){
 	res.redirect('/register');
 }
 passport.authenticate("local")(req,res,function(){
-	res.redirect("/campgrounds");
+	res.redirect("/feeds");
 })
 })
 });
@@ -150,14 +169,14 @@ app.get("/login",function(req,res){
 });
 
 app.post("/login",passport.authenticate("local",{
-    successRedirect:"/campgrounds",
+    successRedirect:"/feeds",
     failureRedirect:"/login"
 }),function(req,res){
 });
 
 app.get("/logout",function(req,res){
     req.logout();
-    res.redirect("/campgrounds");
+    res.redirect("/");
 });
 
 

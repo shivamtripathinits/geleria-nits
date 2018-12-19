@@ -1,0 +1,36 @@
+<% include ../partials/header %>
+<div class="container">
+<!--  <div class="container">-->
+<!--     <header class="jumbotron">-->
+         
+             <div class="card bg-dark text-white">
+  <img class="card-img " height="200" width="42" src="https://images.unsplash.com/photo-1525812497894-356bd94ffff9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60" alt="Card image">
+  <div class="card-img-overlay">
+    <h1 class="card-title">Welcome To Galería!</h1>
+    <p class="card-text">View our hand-picked feeds from all over the world.</p>
+     <p>
+                <a class="btn btn-primary btn-large" href="/feeds/new">Add New feeds</a>
+             </p>
+  </div>
+</div>
+         
+     <!--</header>-->
+     <!--</div>-->
+     <div class="row text-center mt-4  " style="display:flex; flex-wrap: wrap;">
+        <% feeds.forEach(function(feeds){ %>
+            <div class="col-md-3 col-sm-6 d-flex ">
+                <div class="card" style="width: 18rem;">
+  <img class="card-img-top" height="150" src="<%= feeds.image %>" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title"><%= feeds.name %></h5>
+    <p class="card-text"><%= feeds.description.slice(0,90) %>..</p>
+    <a href="/feeds/<%= feeds._id %>" class="btn btn-primary">More Info</a>
+  </div>
+</div>
+
+            </div>
+        <% }); %>
+    </div>
+</div>
+</div>
+<% include ../partials/footer %>

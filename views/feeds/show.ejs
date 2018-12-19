@@ -1,0 +1,29 @@
+<% include ../partials/header %>
+<div class="container  w-50">
+<div class="card mb-3">
+  <img class="card-img-top" src="<%= feeds.image %>" alt="Card image cap">
+  <div class="card-body">
+    <h5 class="card-title"><%=feeds.name%></h5>
+    <p class="card-text"><%= feeds.description %></p>
+    <p class="card-text"><small class="text-muted"><em>Posted by <%=feeds.author.username%></em></small></p>
+  </div>
+</div>
+<p>
+   
+                        
+                        <form id="delete-form" action="/feeds/<%= feeds._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-xs btn-danger">Delete</button>
+                        </form>
+                    
+</p>
+<p>
+    <a class="btn btn-success" href="/feeds/<%= feeds._id %>/comments/new">Add New Comment</a>
+</p>
+
+<% feeds.comments.forEach(function(comment){ %>
+    <p>
+        <strong><%= comment.author.username %></strong> - <%= comment.text %>
+    </p>
+<% }) %>
+<% include ../partials/footer %>
+</div>

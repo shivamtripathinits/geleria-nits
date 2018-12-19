@@ -1,6 +1,26 @@
-<h1>Register here</h1>
+
+
+<% include ./partials/header %>
+
+
+<div class="container  w-50">
+	<h1 class="font-weight-bold">Register here</h1>
 <form action="/register" method="POST" >
-	<input type="text" name="username" placeholder="username">
-	<input type="password" name="password" placeholder="password">
-	<button>Submit</button>
+  <div class="form-group">
+    <label for="exampleInputEmail1">Username</label>
+    <input  class="form-control" type="text" name="username" placeholder="Username">
+    
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Password</label>
+    <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+  </div>
+  <div class="form-group form-check">
+    
+    
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+<em>Already a member <a href="/login">Login</a></em>
+</div>
+<% include ./partials/footer %>
